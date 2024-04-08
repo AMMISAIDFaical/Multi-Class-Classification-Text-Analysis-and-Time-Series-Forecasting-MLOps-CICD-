@@ -17,7 +17,8 @@ jobs:
     - name: Build Docker image
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-        docker run -d -p 8000:8000 docker.pkg.github.com/ammisaidfaical/time_series_mlops/ts-project
+        docker pull ghcr.io/ammisaidfaical/time_series_mlops/ts-project:latest
+        docker run -d -p 8000:8000 ghcr.io/ammisaidfaical/time_series_mlops/ts-project:latest
   
     # - name: Test API
     #   run: curl -X 'POST' 'http://localhost:8000/predict' -H 'accept:application/json' -H 'Content-Type:application/json' -d '{ "day_date":"2024-04-01" }'
