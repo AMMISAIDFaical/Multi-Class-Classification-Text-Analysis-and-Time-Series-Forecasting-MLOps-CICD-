@@ -1,0 +1,24 @@
+name: Build and Run Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Build Docker image
+      run: docker build -t ts-project .
+
+    - name: Run Docker Container
+      run: docker run -d -p 8000:8000 ts-project
+
+    - name: Test API
+      run: curl -X 'POST' 'http://localhost:8000/predict' -H 'accept:application/json' -H 'Content-Type:application/json' -d '{ "day_date":"2024-04-01" }'
