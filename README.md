@@ -1,114 +1,56 @@
-# I. Historical Weather Time series forecasting
+ # Historical Weather Time Series Forecasting
 
-## II.Description of the project, architecture and data flows
-In our project We utilized the Historical Weather API (Open-Meteo) to retrieve historical weather data. 
-This API leverages reanalysis datasets sourced from diverse observations.
-* For our data collection, we focused on obtaining a time series of temperature at 2m from the ground ("Temperature (2 m)")
-for the City of France.
-* We conducted experiments with different architectures such as Stats models and ML regression modlels Our primary objective was to develop a time series forecasting model using a combination of statistical methods and machine learning
-regression techniques.
+## High-level Description
+This project aims to forecast historical weather time series data using machine learning regression techniques. It utilizes the Historical Weather API (Open-Meteo) to retrieve temperature data at 2m from the ground for the City of France. The primary objective is to develop accurate time series forecasting models through experimentation with different architectures such as statistical models and machine learning regression models.
 
-## III. Python Scripts
-* after exprimentation we created three seperate python script files which encapsulate the ML pipeline 
+## Data Flow & Architecture
+The data flow involves retrieving weather data from the Historical Weather API, preprocessing it, training machine learning models, evaluating model performance, and serving predictions through a FastAPI server. The architecture encompasses Python scripts for data retrieval, preprocessing, model training, evaluation, and serving, as well as Docker for containerization of the FastAPI server.
 
-  * train.py :
-    * 1. `load_train_data`: This method loads training data from a SQLite database located at the specified path. 
-          It returns the (`X_train`) and labels (`y_train`).
-    * 2. `fit_model`: This method fits a linear regression model to the provided training data (`X_train` and `y_train`).
-         It prints information about the training data, such as the minimum and maximum dates and returns the trained model.
-    * 3. `persist_data_in_db`: This method is defined in the ***common.py script*** it retrieves the latest data from an API and stores it
-          in the database processed and ready to train and test.
-    * 4. `persist_model`: This method defined in ***common.py script*** it is responsible for persisting the trained model to the 
-          path "/api/models"
-    * 5. `persist_data_infos_db`: This method defined in ***common.py script*** it is responsible for persisting information 
-          about the data, such as model parameters, to the database.
+## Main Technologies Used and for Which Purpose
+- Python: Main programming language for scripting, data manipulation, and model development.
+- Pandas, NumPy: Data manipulation and preprocessing.
+- Statsmodels, scikit-learn: Statistical models and machine learning regression techniques.
+- FastAPI: Web framework for serving machine learning models.
+- Docker: Containerization of the FastAPI server for deployment.
 
-  * common.py :
-    * 1. `retrieve_weather_data_as_pd(start_date="2020-01-01", end_date="2023-12-31")`: Retrieves weather data from an API (Open-Meteo) within 
-            a specified date range. It prints information about the data, including coordinates, elevation, and timezone. 
-            The data is then processed and returned as a Pandas DataFrame.
-    * 2. `transform_data(ts_data)`: Transforms the retrieved weather data into stationary data NOT Implemented.
-    * 3. `adf_test(ts_data)`: Conducts the Augmented Dickey-Fuller test to determine if the data is stationary. 
-          If the p-value is less than 0.05, indicating stationarity, it returns True.
-    * 4. `preprocess_data(ts_data)`: Preprocesses the retrieved weather data by dropping NaN values, converting date columns to datetime
-         format, resampling the data, checking for stationarity, and creating lag features. 
-         The preprocessed data is returned as a Pandas DataFrame.
-    * 5. `persist_data_in_db()`: Retrieves weather data from the API, preprocesses it, splits it into training and testing sets, and saves 
-          the sets into a SQLite database.
-    * 6. `persist_model(model, path)`: Persists a trained model to a specified path using pickle serialization.
-    * 7. `load_model(path)`: Loads a trained model from a specified path using pickle deserialization.
-    * 8. `persist_data_infos_db(model)`: Saves information about the trained model, such as coefficients and intercept, to the SQLite database.
-    * 9. `persist_preds_in_db(results_df)`: Saves predictions to the SQLite database.
-      
-  * evaluate.py :
-    * 1. `load_test_data(path)`: Reads test data from a SQLite database located at the specified path. 
-         It retrieves features (`X_test`) and labels (`y_test`) from the database and returns them.
-    * 2. `evaluate_model(model, X_test, y_test)`: Evaluates the performance of a given model using the test data.It makes predictions using the model,
-         calculates the error between the actual and predicted values, and visualizes the results using a line plot. The mean absolute percentage error (MAPE) is also calculated and included in the plot title. 
-         The function returns a DataFrame containing actual, predicted, and error values.
-    * 3. `persist_preds_in_db(results_df)`: Saves predictions to a SQLite database. The results DataFrame, containing actual, predicted, and error values, is saved to the database.
+## Running Locally
+To run the project locally, follow these steps:
 
-## Serving Model using FAST API
-  * main.py : 
-     * 1. `load_ml_pipeline()`: Loads the machine learning model during server startup. The model is loaded using a function from the `common` module.
-   
-     * 2. `create_req_pred(req_pred_df)`: Creates the Prediction and Request table in the database (`common.DB_PATH`) and replaces it if it already exists. It takes a DataFrame (`req_pred_df`) containing prediction and request data as input and returns the same DataFrame.
-     
-     * 3. `pred_req_DbSave(results_df_filtered, req_pred_table)`: Saves prediction and request data to the database. It iterates over rows of a DataFrame (`results_df_filtered`) and inserts them into the `pred_req_history` table. The table name is passed as an argument (`req_pred_table`).
-     
-     * 4. `parse_csv(df)`: Converts a DataFrame (`df`) to JSON format with datetime index in ISO format. It returns the parsed JSON.
-     
-     * 5. `get_infrence_data(start_date="2023-12-31", end_date=None)`: Retrieves inference data from the weather API and preprocesses it. It returns the preprocessed data excluding the 'temperature_2m' column.
-     
-     * 6. `predict_temp(request: Day)`: Handles POST requests to predict temperature. It receives a `Day` object as input containing the date for which temperature prediction is requested. It makes predictions using the loaded machine learning model and returns the predictions for the specified date in JSON format.
-     
-     * 7. `get_temp(day: str)`: Handles GET requests to retrieve temperature data for a specific day. It queries the database for temperature predictions made for the specified day and returns the data in JSON format.
+### Install Dependencies
+1. Ensure you have Python installed on your system.
+2. Clone the repository.
+3. Navigate to the project directory.
+4. Install dependencies using pip:
 
-## III. Dockerizing the Server
-  word on the ***Server*** : 
-  * As our Fast API has been built it runs locally and it has two method : POST http predict (returns temperatures of the day inserted) and get_temp gets the preds for giving day date if its available in our database, the Uvicorn Server can be use the API to serve the prediction requests. 
- * for dockerizing our api we created DOCKERFILE with main components :
-    # Dockerfile 
-      ### Base Image
-          - FROM python:latest**: Specifies the base image for your Docker container, in this case, it's the latest version of Python available from Docker Hub.
-      ### System Packages
-          - RUN apt-get update && apt-get upgrade -y && \ apt-get install -y --no-install-recommends bash git openssh-client**: updates image
-      ### Working Directory
-          - WORKDIR ./app**: Sets the working directory inside the container to `/app`.
-      ### Application Setup
-          - COPY requirements.txt .**: Copies the `requirements.txt` file from the Docker build context to the `/app` directory inside the container.
-             * requirements has to containe :
-                - is project requires specific Python packages for data analysis and web development, including pandas, numpy, fastjsonschema, uvicorn, fastapi, pydantic, scikit-learn, openmeteo-requests,   
-                  requests-cache, retry-requests, statsmodels, and configparser, with version constraints ensuring compatibility and best practices for installation and version management.
-          - RUN pip install -r requirements.txt**: Installs Python dependencies listed in `requirements.txt` using pip.
-     ### Application Files
-          - COPY ./api /app**: Copies the contents of the `api` directory from the Docker build context to the `/app` directory inside the container.
-          - COPY ./common.py .**: Copies the `common.py` file from the Docker build context to the current working directory inside the container.
-          - COPY ./config.ini .**: Copies the `config.ini` file from the Docker build context to the current working directory inside the container.
-     ## Command
-     - **CMD ["python", "main.py"]**: Specifies the command that will be executed when the container starts. In this case, it runs the `main.py` script using Python.
-## IV. Pushing the work to personal github repo
+### Run
+1. Execute the train.py script to retrive data using the common class save it to db
+   and train model and saves it as pickel in api/model/ folder (make sure you adjust the paths  
+   for local run
+2. Execute evaluate.py for model evaluation , new tables will be added to the db and to 
+   visualization/monitoring linear_reg_plot.png.
+3. Execute the main.py the app will run on the port 8000 by adding /docs to the giving http url
+   you can see swagger ui and test api endpoints (predict day 2024-04-01) always try for 5 days    in past because api cant provide data till the current day you are in
 
-## V. Writing workflow yml files build 
-   ### Build Workflow Documentation CI/CD
-Workflow Name
-- name: Build and Run Docker Image**: Describes the purpose of the workflow, which is to build and run a Docker image.
+### Build
+No additional build steps required for running locally.
 
-Triggers
-- **on**: Specifies the triggers for the workflow.
-- **workflow_dispatch**:  manual triggering of the workflow.
+### Test
+To test the project locally, you can manually make HTTP requests to the FastAPI server endpoints using swagger ui.
 
-Jobs
-- **build**: Defines the job to build the Docker image.
-- **permissions**: Specifies permissions required for the job.
-- **packages: write**: Grants write permissions for packages.
-- **name**: Describes the job.
-- **runs-on**: Specifies the operating system for the job (ubuntu-latest).
-      
-Steps
-- **Checkout code**: Checks out the repository code using the `actions/checkout` action.
-- **Build Docker image**: Builds the Docker image using the `docker build` command, tagging it as `ts-project`.
-- **Push Docker image**: Pushes the Docker image to GitHub Packages.
-- Logs into Docker registry using GitHub token stored in secrets.
-- Tags the Docker image with the appropriate repository URL.
-- Pushes the tagged Docker image to GitHub Packages registry.
+## CI/CD Steps
+The CI/CD pipeline automates the build and deployment process. Here's a short description of each step with their outputs:
+
+1. **Checkout Code**
+- This step checks out the repository code from the version control system.
+
+2. **Build Docker Image**
+- Builds the Docker image containing the FastAPI server and its dependencies.
+- Output: Docker image tagged as `historical-weather-forecast:latest`.
+
+3. **Push Docker Image**
+- Pushes the built Docker image to a container registry.
+- Output: Docker image pushed to the container registry.
+
+4. **Deploy**
+- Deploys the Docker image to the target environment (e.g., Kubernetes cluster).
+- Output: Deployment of the Docker image completed successfully.
