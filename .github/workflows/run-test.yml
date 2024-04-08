@@ -11,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Run Docker Container
-      run: docker run -d -p 8000:8000 ts-project
 
-    - name: Build Docker image
+    - name: Pull and Run
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
         docker pull ghcr.io/ammisaidfaical/time_series_mlops/ts-project:latest
