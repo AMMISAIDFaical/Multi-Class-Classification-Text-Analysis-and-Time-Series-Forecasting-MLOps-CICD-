@@ -91,24 +91,24 @@ regression techniques.
 
 ## V. Writing workflow yml files build 
    ### Build Workflow Documentation CI/CD
-       Workflow Name
-          - name: Build and Run Docker Image**: Describes the purpose of the workflow, which is to build and run a Docker image.
-          
-       Triggers
-          - **on**: Specifies the triggers for the workflow.
-          - **workflow_dispatch**:  manual triggering of the workflow.
-          
-       Jobs
-          - **build**: Defines the job to build the Docker image.
-          - **permissions**: Specifies permissions required for the job.
-          - **packages: write**: Grants write permissions for packages.
-          - **name**: Describes the job.
-          - **runs-on**: Specifies the operating system for the job (ubuntu-latest).
-          
-        Steps
-          - **Checkout code**: Checks out the repository code using the `actions/checkout` action.
-          - **Build Docker image**: Builds the Docker image using the `docker build` command, tagging it as `ts-project`.
-          - **Push Docker image**: Pushes the Docker image to GitHub Packages.
-          - Logs into Docker registry using GitHub token stored in secrets.
-          - Tags the Docker image with the appropriate repository URL.
-          - Pushes the tagged Docker image to GitHub Packages registry.
+Workflow Name
+- name: Build and Run Docker Image**: Describes the purpose of the workflow, which is to build and run a Docker image.
+
+Triggers
+- **on**: Specifies the triggers for the workflow.
+- **workflow_dispatch**:  manual triggering of the workflow.
+
+Jobs
+- **build**: Defines the job to build the Docker image.
+- **permissions**: Specifies permissions required for the job.
+- **packages: write**: Grants write permissions for packages.
+- **name**: Describes the job.
+- **runs-on**: Specifies the operating system for the job (ubuntu-latest).
+      
+Steps
+- **Checkout code**: Checks out the repository code using the `actions/checkout` action.
+- **Build Docker image**: Builds the Docker image using the `docker build` command, tagging it as `ts-project`.
+- **Push Docker image**: Pushes the Docker image to GitHub Packages.
+- Logs into Docker registry using GitHub token stored in secrets.
+- Tags the Docker image with the appropriate repository URL.
+- Pushes the tagged Docker image to GitHub Packages registry.
