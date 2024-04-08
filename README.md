@@ -20,7 +20,21 @@ To run the project locally, follow these steps:
 1. Ensure you have Python installed on your system.
 2. Clone the repository.
 3. Navigate to the project directory.
-4. Install dependencies using pip:
+4. Install dependencies in requirement.txt make sure you have the right python venv that contains the sqlite dependencie
+5. listing the dependencies in requirement.txt:
+pandas~=2.2.1
+numpy~=1.26.4
+fastjsonschema==2.19.0
+uvicorn~=0.24.0.post1
+fastapi~=0.104.1
+pydantic~=2.5.2
+scikit-learn>=0.24.0
+openmeteo-requests~=1.2.0
+requests-cache
+retry-requests
+statsmodels
+configparser
+
 
 ### Run
 1. Execute the train.py script to retrive data using the common class save it to db
