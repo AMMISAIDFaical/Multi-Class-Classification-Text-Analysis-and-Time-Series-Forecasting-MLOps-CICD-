@@ -1,17 +1,16 @@
 name: run-test
 
 on:
-  push:
   workflow_dispatch:    
+
 jobs:
   build:
     permissions:
       packages: read
     name: Run Automatic tests
     runs-on: ubuntu-latest
-
     steps:
-
+    
     - name: Pull and Run
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
@@ -22,7 +21,7 @@ jobs:
     - name: Print container logs before curl
       run: |
         echo "Container logs before curl request:"
-        docker logs test-api --since 20s  # Adjust the timestamp as needed
+        docker logs test-api --since 20s
 
     - name: Test API
       run: curl -X 'POST' 'http://localhost:8000/predict' -H 'accept:application/json' -H 'Content-Type:application/json' -d '{ "day_date":"2024-04-01" }'
@@ -30,4 +29,4 @@ jobs:
     - name: Print container logs after curl
       run: |
         echo "Container logs after curl request:"
-        docker logs test-api --since 20s  # Adjust the timestamp as needed
+        docker logs test-api --since 20s
