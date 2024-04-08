@@ -45,26 +45,29 @@ configparser
 3. Execute the main.py the app will run on the port 8000 by adding /docs to the giving http url
    you can see swagger ui and test api endpoints (predict day 2024-04-01) always try for 5 days    in past because api cant provide data till the current day you are in
 
-### Build
-No additional build steps required for running locally.
+### Build docker image 
+   1. on the terminal run docker build -t ts-prod .
+   2. the if build of the image is perfectly built run : docker run -d -p 8000:8000 ts-prod
+   3. you should get the app runing on same local port 8000 but in docker container 
 
 ### Test
-To test the project locally, you can manually make HTTP requests to the FastAPI server endpoints using swagger ui.
+To test the project locally (docker container), you can manually make HTTP requests to the FastAPI server endpoints using swagger ui.
 
 ## CI/CD Steps
-The CI/CD pipeline automates the build and deployment process. Here's a short description of each step with their outputs:
 
-1. **Checkout Code**
-- This step checks out the repository code from the version control system.
+### Step 1: Build and Run Docker Image
 
-2. **Build Docker Image**
-- Builds the Docker image containing the FastAPI server and its dependencies.
-- Output: Docker image tagged as `historical-weather-forecast:latest`.
+- **Description**: This step builds a Docker image named `ts-project` from the repository code and pushes it to GitHub Packages.
+- **Outputs**:
+  - If successful, the Docker image will be pushed to GitHub Packages under the repository `you_username/time_series_mlops/ts-project`.
 
-3. **Push Docker Image**
-- Pushes the built Docker image to a container registry.
-- Output: Docker image pushed to the container registry.
+### Step 2: Run Automatic Tests
 
-4. **Deploy**
-- Deploys the Docker image to the target environment (e.g., Kubernetes cluster).
-- Output: Deployment of the Docker image completed successfully.
+- **Description**: This step pulls the Docker image from GitHub Packages, runs it as a container, executes automatic tests on the API, and prints the container logs before and after the test.
+- **Outputs**:
+  - Container logs before curl request.
+  - Result of the API test request (e.g., response code, response body).
+  - Container logs after curl request.
+
+
+
