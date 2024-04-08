@@ -66,9 +66,49 @@ regression techniques.
 
 ## III. Dockerizing the Server
   word on the ***Server*** : 
-  As our Fast API has been built, the Uvicorn Server can be use the API to serve the prediction requests. 
-  in this section  this server will be dockerized. And final predictions will be served by the Docker container.
-  * chice of the image `frolvlad/alpine-miniconda3:python3.7` is used as base image. 
-    * it contains python 3.7 
-    * contains an alpine version of linux, which is a distribution created to be very small in size, to avoid heavier images
-    * 
+  * As our Fast API has been built it runs locally and it has two method : POST http predict (returns temperatures of the day inserted) and get_temp gets the preds for giving day date if its available in our database, the Uvicorn Server can be use the API to serve the prediction requests. 
+ * for dockerizing our api we created DOCKERFILE with main components :
+    # Dockerfile 
+      ### Base Image
+          - FROM python:latest**: Specifies the base image for your Docker container, in this case, it's the latest version of Python available from Docker Hub.
+      ### System Packages
+          - RUN apt-get update && apt-get upgrade -y && \ apt-get install -y --no-install-recommends bash git openssh-client**: updates image
+      ### Working Directory
+          - WORKDIR ./app**: Sets the working directory inside the container to `/app`.
+      ### Application Setup
+          - COPY requirements.txt .**: Copies the `requirements.txt` file from the Docker build context to the `/app` directory inside the container.
+             * requirements has to containe :
+                - is project requires specific Python packages for data analysis and web development, including pandas, numpy, fastjsonschema, uvicorn, fastapi, pydantic, scikit-learn, openmeteo-requests,   
+                  requests-cache, retry-requests, statsmodels, and configparser, with version constraints ensuring compatibility and best practices for installation and version management.
+          - RUN pip install -r requirements.txt**: Installs Python dependencies listed in `requirements.txt` using pip.
+     ### Application Files
+          - COPY ./api /app**: Copies the contents of the `api` directory from the Docker build context to the `/app` directory inside the container.
+          - COPY ./common.py .**: Copies the `common.py` file from the Docker build context to the current working directory inside the container.
+          - COPY ./config.ini .**: Copies the `config.ini` file from the Docker build context to the current working directory inside the container.
+     ## Command
+     - **CMD ["python", "main.py"]**: Specifies the command that will be executed when the container starts. In this case, it runs the `main.py` script using Python.
+## IV. Pushing the work to personal github repo
+
+## V. Writing workflow yml files build 
+   ### Build Workflow Documentation CI/CD
+Workflow Name
+- name: Build and Run Docker Image**: Describes the purpose of the workflow, which is to build and run a Docker image.
+
+Triggers
+- **on**: Specifies the triggers for the workflow.
+- **workflow_dispatch**:  manual triggering of the workflow.
+
+Jobs
+- **build**: Defines the job to build the Docker image.
+- **permissions**: Specifies permissions required for the job.
+- **packages: write**: Grants write permissions for packages.
+- **name**: Describes the job.
+- **runs-on**: Specifies the operating system for the job (ubuntu-latest).
+      
+Steps
+- **Checkout code**: Checks out the repository code using the `actions/checkout` action.
+- **Build Docker image**: Builds the Docker image using the `docker build` command, tagging it as `ts-project`.
+- **Push Docker image**: Pushes the Docker image to GitHub Packages.
+- Logs into Docker registry using GitHub token stored in secrets.
+- Tags the Docker image with the appropriate repository URL.
+- Pushes the tagged Docker image to GitHub Packages registry.
