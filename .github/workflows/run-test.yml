@@ -16,8 +16,18 @@ jobs:
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
         docker pull ghcr.io/ammisaidfaical/time_series_mlops/ts-project:latest
-        docker run -d -p 8000:8000 ghcr.io/ammisaidfaical/time_series_mlops/ts-project:latest
-        sleep 5
-  
+        docker run -d --name test-api -p 8000:8000 ghcr.io/ammisaidfaical/time_series_mlops/ts-project:latest
+        sleep 15
+        
+    - name: Print container logs before curl
+      run: |
+        echo "Container logs before curl request:"
+        docker logs test-api --since 20s  # Adjust the timestamp as needed
+
     - name: Test API
       run: curl -X 'POST' 'http://localhost:8000/predict' -H 'accept:application/json' -H 'Content-Type:application/json' -d '{ "day_date":"2024-04-01" }'
+
+    - name: Print container logs after curl
+      run: |
+        echo "Container logs after curl request:"
+        docker logs test-api --since 20s  # Adjust the timestamp as needed
