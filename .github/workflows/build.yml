@@ -1,23 +1,23 @@
-name: Build and Run Docker Image
+  name: Build and Run Docker Image
 
-on:
-  workflow_dispatch:    
-jobs:
-  build:
-    permissions:
-      packages: write
-    name: Build Docker Image
-    runs-on: ubuntu-latest
+  on:
+    workflow_dispatch:
+  jobs:
+    build:
+      permissions:
+        packages: write
+      name: Build Docker Image
+      runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Build Docker image
-      run: docker build -t ts-project .
+      - name: Build Docker image
+        run: docker build -t ts-project .
 
-    - name: Push Docker image
-      run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-        docker tag ts-project:latest docker.pkg.github.com/ammisaidfaical/time_series_mlops/ts-project
-        docker push docker.pkg.github.com/ammisaidfaical/time_series_mlops/ts-project
+      - name: Push Docker image
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+          docker tag ts-project:latest docker.pkg.github.com/ammisaidfaical/time_series_mlops/ts-project
+          docker push docker.pkg.github.com/ammisaidfaical/time_series_mlops/ts-project
